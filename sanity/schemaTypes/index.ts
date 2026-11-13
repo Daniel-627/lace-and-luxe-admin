@@ -1,4 +1,5 @@
 import type { SchemaTypeDefinition } from "sanity";
+import { blockTypes } from "./blocks";
+import { homePage, siteSettings } from "./documents";
 
-// Homepage blocks (hero, promotions, ad sections...) get added here in the next step.
-export const schemaTypes: SchemaTypeDefinition[] = [];
+export const schemaTypes: SchemaTypeDefinition[] = [homePage, siteSettings, ...blockTypes];
