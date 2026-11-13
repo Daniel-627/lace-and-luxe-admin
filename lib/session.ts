@@ -10,7 +10,7 @@ export class ApiError extends Error {
 
 /** Server-side call to the admin API using the staff token from the httpOnly cookie. */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = cookies().get(COOKIE)?.value;
+  const token = (await cookies()).get(COOKIE)?.value;
   const res = await fetch(`${API_BASE}/api/admin${path}`, {
     ...init,
     cache: "no-store",

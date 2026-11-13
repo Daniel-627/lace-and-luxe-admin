@@ -1,13 +1,31 @@
 {
   "name": "lace-and-luxe-admin",
+  "version": "0.1.0",
   "private": true,
-  "scripts": { "dev": "next dev -p 3001", "build": "next build", "start": "next start", "typecheck": "tsc --noEmit" },
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
-    "@fontsource/cormorant-garamond": "^5.1.0", "@fontsource/jost": "^5.1.0",
-    "next": "^14.2.15", "react": "^18.3.1", "react-dom": "^18.3.1"
+    "@fontsource/cormorant-garamond": "^5.1.0",
+    "@fontsource/jost": "^5.1.0",
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^5.31.2",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "sanity": "^5.31.2",
+    "styled-components": "^6.6.0"
   },
   "devDependencies": {
-    "@types/node": "^20.16.0", "@types/react": "^18.3.0", "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.20", "postcss": "^8.4.47", "tailwindcss": "^3.4.13", "typescript": "^5.6.0"
+    "@types/node": "^20.16.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.0"
   }
 }

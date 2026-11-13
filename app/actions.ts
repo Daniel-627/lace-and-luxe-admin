@@ -11,16 +11,16 @@ export async function login(fd: FormData): Promise<{ error: string }> {
   if (!res) return { error: "Can't reach the server. If it was asleep, wait a minute and try again." };
   const data = await res.json().catch(() => ({}));
   if (!res.ok) return { error: (data as { error?: string }).error ?? "Could not sign in" };
-  cookies().set(COOKIE, (data as { token: string }).token, {
+  (await cookies()).set(COOKIE, (data as { token: string }).token, {
     httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 12 * 3600,
   });
   redirect("/");
 }
 
 export async function logout(): Promise<void> {
-  const token = cookies().get(COOKIE)?.value;
+  const token = (await cookies()).get(COOKIE)?.value;
   if (token) await fetch(`${API_BASE}/api/admin/logout`, { method: "POST", cache: "no-store", headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
-  cookies().delete(COOKIE);
+  (await cookies()).delete(COOKIE);
   redirect("/login");
 }
 
