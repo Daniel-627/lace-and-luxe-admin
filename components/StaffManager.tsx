@@ -42,7 +42,7 @@ export default function StaffManager({ staff, meId }: { staff: StaffMember[]; me
         <section className="space-y-3 rounded-2xl bg-claret p-5 text-ivory">
           <p className="font-serif text-2xl">Temporary password for {secret.who}</p>
           <code className="block rounded-lg bg-ivory/10 p-3 text-lg tracking-wide">{secret.password}</code>
-          <p className="text-sm text-ivory/80">This is shown only once. Send it to them privately, and ask them to sign in and change it under Account straight away.</p>
+          <p className="text-sm text-ivory/80">This is shown only once. Send it to them privately. They will be asked to choose their own password the first time they sign in.</p>
           <div className="flex gap-3">
             <button onClick={async () => { await navigator.clipboard.writeText(secret.password); setCopied(true); }} className="rounded-full bg-champagne px-5 py-2 text-sm text-claret">{copied ? "Copied" : "Copy"}</button>
             <button onClick={() => setSecret(null)} className="rounded-full border border-ivory/60 px-5 py-2 text-sm">I&apos;ve saved it</button>

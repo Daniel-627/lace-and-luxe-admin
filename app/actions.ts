@@ -14,7 +14,7 @@ export async function login(fd: FormData): Promise<{ error: string }> {
   (await cookies()).set(COOKIE, (data as { token: string }).token, {
     httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 12 * 3600,
   });
-  redirect("/");
+  redirect((data as { staff?: { mustChangePassword?: boolean } }).staff?.mustChangePassword ? "/change-password" : "/");
 }
 
 export async function logout(): Promise<void> {

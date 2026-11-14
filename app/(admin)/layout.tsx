@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { redirect } from "next/navigation";
 import { api } from "../../lib/session";
 import type { Me } from "../../lib/types";
 import Nav from "../../components/Nav";
@@ -6,6 +7,7 @@ import { logout } from "../actions";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const me = await api<Me>("/me");
+  if (me.mustChangePassword) redirect("/change-password");
   return (
     <div className="min-h-screen md:flex">
       <aside className="bg-claret p-4 text-ivory md:min-h-screen md:w-64 md:shrink-0 md:p-6">

@@ -18,6 +18,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   });
   if (res.status === 401) redirect("/login");
   const data = await res.json().catch(() => ({}));
+  if (res.status === 403 && (data as { code?: string }).code === "PASSWORD_CHANGE_REQUIRED") redirect("/change-password");
   if (!res.ok) throw new ApiError(res.status, (data as { error?: string }).error ?? "Request failed");
   return data as T;
 }
