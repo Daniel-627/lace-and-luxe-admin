@@ -1,22 +1,23 @@
+import Link from "next/link";
 import { api } from "../../lib/session";
 import { kes } from "../../lib/format";
 import type { Stats } from "../../lib/types";
 
 export default async function Dashboard() {
   const s = await api<Stats>("/stats");
-  const cards: [string, string][] = [
-    ["Orders today", String(s.ordersToday)], ["Revenue today", kes(s.revenueToday)],
-    ["Awaiting payment", String(s.pendingOrders)], ["New WhatsApp leads", String(s.newLeads)],
+  const cards: [string, string, string][] = [
+    ["Orders today", String(s.ordersToday), "/orders"], ["Revenue today", kes(s.revenueToday), "/orders?status=PAID"],
+    ["Awaiting payment", String(s.pendingOrders), "/orders?status=PENDING"], ["New WhatsApp leads", String(s.newLeads), "/leads?status=NEW"],
   ];
   return (
     <div className="space-y-8">
       <h1 className="font-serif text-4xl">Dashboard</h1>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {cards.map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-champagne/40 bg-white/60 p-5">
+        {cards.map(([label, value, href]) => (
+          <Link key={label} href={href} className="rounded-2xl border border-champagne/40 bg-white/60 p-5 transition hover:bg-white">
             <p className="text-xs uppercase tracking-[0.15em] text-claret/60">{label}</p>
             <p className="mt-2 font-serif text-3xl">{value}</p>
-          </div>
+          </Link>
         ))}
       </div>
       <section className="rounded-2xl border border-champagne/40 bg-white/60 p-5">

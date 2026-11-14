@@ -19,6 +19,16 @@ async function compress(file: File): Promise<Blob> {
   throw new Error("That photo is still too large after shrinking. Try a smaller one.");
 }
 
+export async function uploadPhoto(file: File): Promise<string> {
+  const blob = await compress(file);
+  const fd = new FormData();
+  fd.append("file", blob, "photo.jpg");
+  fd.append("name", file.name.replace(/\.[^.]+$/, "") + ".jpg");
+  const r = await uploadImage(fd);
+  if (!r.url) throw new Error(r.error ?? "Upload failed");
+  return r.url;
+}
+
 export default function ImageField({ value, onChange }: { value?: string; onChange: (url: string | undefined) => void }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -26,14 +36,8 @@ export default function ImageField({ value, onChange }: { value?: string; onChan
   async function pick(file: File | undefined) {
     if (!file) return;
     setBusy(true); setError("");
-    try {
-      const blob = await compress(file);
-      const fd = new FormData();
-      fd.append("file", blob, "photo.jpg");
-      fd.append("name", file.name.replace(/\.[^.]+$/, "") + ".jpg");
-      const r = await uploadImage(fd);
-      if (r.url) onChange(r.url); else setError(r.error ?? "Upload failed");
-    } catch (e) { setError(e instanceof Error ? e.message : "Upload failed"); }
+    try { onChange(await uploadPhoto(file)); }
+    catch (e) { setError(e instanceof Error ? e.message : "Upload failed"); }
     finally { setBusy(false); }
   }
 

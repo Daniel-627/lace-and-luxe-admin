@@ -2,10 +2,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import ImageField from "./ImageField";
+import { uploadPhoto } from "./ImageField";
 import { createCategory, deleteProduct, saveProduct } from "../app/actions-products";
 import { COLOUR_HEX, type AdminCategory, type AdminProduct, type ProductPayload } from "../lib/catalog";
 
+interface MediaRow { key: string; kind: "IMAGE" | "VIDEO"; url: string; colour: string }
 interface Row { key: string; id?: number; sku?: string; size: string; colour: string; colourHex: string; price: string; stock: string }
 const rk = () => Math.random().toString(36).slice(2, 9);
 const box = "w-full rounded-lg border border-champagne/60 bg-white/70 p-2.5 text-sm";
@@ -16,7 +17,12 @@ export default function ProductForm({ product, categories: initialCats, canDelet
   const [name, setName] = useState(product?.name ?? "");
   const [slug, setSlug] = useState(product?.slug ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
-  const [image, setImage] = useState<string | undefined>(product?.image ?? undefined);
+  const [media, setMedia] = useState<MediaRow[]>(
+    !product ? [] : product.media.length
+      ? product.media.map((m) => ({ key: rk(), kind: m.kind, url: m.url, colour: m.colour ?? "" }))
+      : product.image ? [{ key: rk(), kind: "IMAGE" as const, url: product.image, colour: "" }] : []);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [categories, setCategories] = useState(initialCats);
   const [categoryId, setCategoryId] = useState<number | null>(product?.categoryId ?? null);
   const [newCat, setNewCat] = useState("");
@@ -67,8 +73,11 @@ export default function ProductForm({ product, categories: initialCats, canDelet
       if (!Number.isInteger(stock) || stock < 0) return setMsg({ ok: false, text: `${n}: stock must be 0 or more.` });
       variants.push({ ...(r.id ? { id: r.id } : {}), ...(r.sku ? { sku: r.sku } : {}), size: r.size.trim(), colour: r.colour.trim(), colourHex: /^#[0-9a-fA-F]{6}$/.test(r.colourHex) ? r.colourHex : null, price, stock });
     }
+    const have = new Set(rows.map((r) => r.colour.trim().toLowerCase()));
+    const orphan = media.find((m) => m.colour && !have.has(m.colour.toLowerCase()));
+    if (orphan) return setMsg({ ok: false, text: `A ${orphan.kind === "VIDEO" ? "video" : "photo"} is set for "${orphan.colour}", which has no sizes yet.` });
     setBusy(true);
-    const res = await saveProduct(product?.id ?? null, { name: name.trim(), ...(slug.trim() ? { slug: slug.trim() } : {}), description, image: image ?? null, categoryId, active, variants });
+    const res = await saveProduct(product?.id ?? null, { name: name.trim(), ...(slug.trim() ? { slug: slug.trim() } : {}), description, media: media.map((m) => ({ kind: m.kind, url: m.url, colour: m.colour || null })), categoryId, active, variants });
     setBusy(false);
     if (!res.ok) return setMsg({ ok: false, text: res.error ?? "Could not save" });
     setMsg({ ok: true, text: "Saved. The shop shows it within about a minute." });
@@ -82,6 +91,33 @@ export default function ProductForm({ product, categories: initialCats, canDelet
     if (r?.error) setMsg({ ok: false, text: r.error });
   }
 
+  const colourOptions = Array.from(new Set(rows.map((r) => r.colour.trim()).filter(Boolean)));
+  const thumb = (u: string) => (u.includes("cdn.sanity.io") ? `${u}?w=300&auto=format` : u);
+
+  async function addPhotos(files: FileList | null) {
+    if (!files?.length) return;
+    setUploading(true); setMsg(null);
+    try {
+      for (const f of Array.from(files)) {
+        const url = await uploadPhoto(f);
+        setMedia((m) => [...m, { key: rk(), kind: "IMAGE", url, colour: "" }]);
+      }
+    } catch (e) { setMsg({ ok: false, text: e instanceof Error ? e.message : "Upload failed" }); }
+    finally { setUploading(false); }
+  }
+
+  function addVideo() {
+    const u = videoUrl.trim();
+    if (!/^https:\/\//i.test(u)) return setMsg({ ok: false, text: "A video link must start with https://" });
+    setMedia((m) => [...m, { key: rk(), kind: "VIDEO", url: u, colour: "" }]);
+    setVideoUrl(""); setMsg(null);
+  }
+
+  const moveMedia = (i: number, d: number) => setMedia((m) => {
+    const j = i + d; if (j < 0 || j >= m.length) return m;
+    const next = [...m]; [next[i], next[j]] = [next[j], next[i]]; return next;
+  });
+
   return (
     <div className="max-w-4xl space-y-8">
       <div className="flex items-center justify-between">
@@ -89,8 +125,7 @@ export default function ProductForm({ product, categories: initialCats, canDelet
         {canDelete && product && <button onClick={remove} className="text-sm underline">Delete product</button>}
       </div>
 
-      <section className="grid gap-6 md:grid-cols-[auto_1fr]">
-        <div><p className="mb-2 text-sm font-medium">Photo</p><ImageField value={image} onChange={setImage} /></div>
+      <section className="grid gap-6">
         <div className="space-y-4">
           <div><label className="mb-1 block text-sm font-medium">Name</label><input className={box} value={name} onChange={(e) => setName(e.target.value)} /></div>
           <div><label className="mb-1 block text-sm font-medium">Description</label><textarea className={box} rows={4} value={description} onChange={(e) => setDescription(e.target.value)} /></div>
@@ -140,6 +175,44 @@ export default function ProductForm({ product, categories: initialCats, canDelet
           </div>
         )}
         <button type="button" onClick={() => setRows([...rows, { key: rk(), size: "", colour: rows.at(-1)?.colour ?? "", colourHex: rows.at(-1)?.colourHex ?? "", price: rows.at(-1)?.price ?? "", stock: "0" }])} className="rounded-full border border-claret px-5 py-2 text-sm">+ Add one row</button>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="font-serif text-2xl">Photos and video</h2>
+        <p className="text-sm text-claret/70">The first photo is the cover in the shop&apos;s lists. Set a colour on a photo to show it only when customers choose that colour. Photos set to &quot;All colours&quot; always show.</p>
+        {media.length > 0 && (
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+            {media.map((m, i) => (
+              <div key={m.key} className="space-y-2 rounded-xl border border-champagne/40 bg-white/60 p-3">
+                <div className="aspect-[3/4] overflow-hidden rounded-lg bg-rose/20">
+                  {m.kind === "IMAGE"
+                    ? <img src={thumb(m.url)} alt="" className="h-full w-full object-cover" />
+                    : <div className="flex h-full flex-col items-center justify-center gap-2 break-all p-3 text-center text-xs"><span className="text-2xl">▶</span>Video<span className="text-claret/60">{m.url}</span></div>}
+                </div>
+                <select className={box} value={m.colour} onChange={(e) => setMedia(media.map((x) => (x.key === m.key ? { ...x, colour: e.target.value } : x)))}>
+                  <option value="">All colours</option>
+                  {colourOptions.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {m.colour && !colourOptions.some((c) => c.toLowerCase() === m.colour.toLowerCase()) && <option value={m.colour}>{m.colour} (no sizes yet)</option>}
+                </select>
+                <div className="flex justify-between text-sm">
+                  <span className="flex gap-2">
+                    <button type="button" disabled={i === 0} onClick={() => moveMedia(i, -1)} aria-label="Move earlier" className="rounded-full border border-claret/30 px-3 disabled:opacity-30">←</button>
+                    <button type="button" disabled={i === media.length - 1} onClick={() => moveMedia(i, 1)} aria-label="Move later" className="rounded-full border border-claret/30 px-3 disabled:opacity-30">→</button>
+                  </span>
+                  <button type="button" onClick={() => setMedia(media.filter((x) => x.key !== m.key))} className="underline">Remove</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <label className="inline-block cursor-pointer rounded-full border border-claret px-5 py-2 text-sm">
+          {uploading ? "Uploading…" : "+ Add photos"}
+          <input type="file" accept="image/*" multiple className="hidden" disabled={uploading} onChange={(e) => { void addPhotos(e.target.files); e.target.value = ""; }} />
+        </label>
+        <div className="flex gap-2">
+          <input className={box} placeholder="Video link: YouTube, Vimeo or a direct .mp4 link" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} />
+          <button type="button" onClick={addVideo} className="shrink-0 rounded-full border border-claret px-5 text-sm">Add video</button>
+        </div>
       </section>
 
       <div className="sticky bottom-4 flex flex-wrap items-center gap-4 rounded-2xl bg-claret p-4 text-ivory">
