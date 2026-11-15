@@ -12,6 +12,11 @@ export default async function Dashboard() {
   return (
     <div className="space-y-8">
       <h1 className="font-serif text-4xl">Dashboard</h1>
+      {(s.pendingCodes ?? 0) > 0 && (
+        <Link href="/codes" className="block rounded-2xl bg-champagne p-4 text-claret transition hover:opacity-90">
+          {s.pendingCodes} sign-in {s.pendingCodes === 1 ? "code is" : "codes are"} waiting to be sent →
+        </Link>
+      )}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {cards.map(([label, value, href]) => (
           <Link key={label} href={href} className="rounded-2xl border border-champagne/40 bg-white/60 p-5 transition hover:bg-white">
