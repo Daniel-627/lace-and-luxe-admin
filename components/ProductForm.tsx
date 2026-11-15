@@ -27,6 +27,8 @@ export default function ProductForm({ product, categories: initialCats, canDelet
   const [categoryId, setCategoryId] = useState<number | null>(product?.categoryId ?? null);
   const [newCat, setNewCat] = useState("");
   const [active, setActive] = useState(product?.active ?? true);
+  const [payNow, setPayNow] = useState(product?.payNow ?? true);
+  const [payOnDelivery, setPayOnDelivery] = useState(product?.payOnDelivery ?? false);
   const [rows, setRows] = useState<Row[]>((product?.variants ?? []).map((v) => ({ key: rk(), id: v.id, sku: v.sku, size: v.size, colour: v.colour, colourHex: v.colourHex ?? "", price: String(v.price), stock: String(v.stock) })));
   const [q, setQ] = useState({ colours: "", sizes: "", price: "", stock: "" });
   const [busy, setBusy] = useState(false);
@@ -60,6 +62,7 @@ export default function ProductForm({ product, categories: initialCats, canDelet
     setMsg(null);
     if (name.trim().length < 2) return setMsg({ ok: false, text: "Give the product a name." });
     if (rows.length === 0) return setMsg({ ok: false, text: "Add at least one size and colour." });
+    if (!payNow && !payOnDelivery) return setMsg({ ok: false, text: "Allow at least one way to pay." });
     const seen = new Set<string>();
     const variants: ProductPayload["variants"] = [];
     for (const [i, r] of rows.entries()) {
@@ -77,7 +80,7 @@ export default function ProductForm({ product, categories: initialCats, canDelet
     const orphan = media.find((m) => m.colour && !have.has(m.colour.toLowerCase()));
     if (orphan) return setMsg({ ok: false, text: `A ${orphan.kind === "VIDEO" ? "video" : "photo"} is set for "${orphan.colour}", which has no sizes yet.` });
     setBusy(true);
-    const res = await saveProduct(product?.id ?? null, { name: name.trim(), ...(slug.trim() ? { slug: slug.trim() } : {}), description, media: media.map((m) => ({ kind: m.kind, url: m.url, colour: m.colour || null })), categoryId, active, variants });
+    const res = await saveProduct(product?.id ?? null, { name: name.trim(), ...(slug.trim() ? { slug: slug.trim() } : {}), description, media: media.map((m) => ({ kind: m.kind, url: m.url, colour: m.colour || null })), categoryId, active, payNow, payOnDelivery, variants });
     setBusy(false);
     if (!res.ok) return setMsg({ ok: false, text: res.error ?? "Could not save" });
     setMsg({ ok: true, text: "Saved. The shop shows it within about a minute." });
@@ -141,6 +144,12 @@ export default function ProductForm({ product, categories: initialCats, canDelet
             </div>
           </div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /> Show in the shop <span className="text-claret/60">(untick to hide without deleting)</span></label>
+          <div className="space-y-1 rounded-xl border border-champagne/40 bg-white/60 p-3">
+            <p className="text-sm font-medium">How customers can pay for this product</p>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={payNow} onChange={(e) => setPayNow(e.target.checked)} /> Pay now (M-Pesa)</label>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={payOnDelivery} onChange={(e) => setPayOnDelivery(e.target.checked)} /> Pay on delivery</label>
+            <p className="text-xs text-claret/60">If a customer&apos;s basket has several products, they only see the options every product allows.</p>
+          </div>
           <div><label className="mb-1 block text-sm font-medium">Web address (optional)</label><input className={box} value={slug} placeholder="Made from the name if empty" onChange={(e) => setSlug(e.target.value)} /></div>
         </div>
       </section>

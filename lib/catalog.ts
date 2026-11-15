@@ -3,11 +3,11 @@ export interface AdminCategory { id: number; name: string; slug: string; _count?
 export interface AdminMedia { id: number; kind: "IMAGE" | "VIDEO"; url: string; colour: string | null; position: number }
 export interface AdminProduct {
   id: number; name: string; slug: string; description: string; image: string | null; active: boolean;
-  categoryId: number | null; category: AdminCategory | null; variants: AdminVariant[]; media: AdminMedia[];
+  categoryId: number | null; category: AdminCategory | null; variants: AdminVariant[]; media: AdminMedia[]; payNow: boolean; payOnDelivery: boolean;
 }
 export interface VariantPayload { id?: number; sku?: string; size: string; colour: string; colourHex: string | null; price: number; stock: number }
 export interface ProductPayload {
-  name: string; slug?: string; description: string; media: { kind: "IMAGE" | "VIDEO"; url: string; colour: string | null }[]; categoryId: number | null; active: boolean; variants: VariantPayload[];
+  name: string; slug?: string; description: string; media: { kind: "IMAGE" | "VIDEO"; url: string; colour: string | null }[]; categoryId: number | null; active: boolean; payNow: boolean; payOnDelivery: boolean; variants: VariantPayload[];
 }
 
 /** Handy defaults so common colour names get a swatch automatically. */

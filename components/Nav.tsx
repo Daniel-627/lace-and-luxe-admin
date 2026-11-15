@@ -6,7 +6,7 @@ export default function Nav({ owner }: { owner: boolean }) {
   const path = usePathname();
   const items: [string, string][] = [
     ["Dashboard", "/"], ["Products", "/products"], ["Orders", "/orders"], ["WhatsApp leads", "/leads"], ["Sign-in codes", "/codes"], ["Homepage", "/homepage"],
-    ...(owner ? ([["Staff", "/staff"], ["Settings", "/settings"]] as [string, string][]) : []),
+    ...(owner ? ([["Staff", "/staff"], ["Delivery", "/delivery"], ["Payments", "/payments"], ["Discounts", "/discounts"], ["Settings", "/settings"]] as [string, string][]) : []),
     ["Account", "/account"],
   ];
   return (
