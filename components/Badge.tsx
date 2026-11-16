@@ -11,5 +11,5 @@ export default function Badge({ tone, children }: { tone: keyof typeof TONES; ch
   return <span className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] uppercase tracking-[0.1em] ${TONES[tone]}`}>{children}</span>;
 }
 
-export const payTone = (s: string) => (s === "PAID" ? "ok" : s === "FAILED" ? "bad" : "warn") as keyof typeof TONES;
+export const payTone = (s: string) => (s === "PAID" ? "ok" : s === "FAILED" || s === "EXPIRED" ? "bad" : "warn") as keyof typeof TONES;
 export const fulfilTone = (s: string) => (s === "DELIVERED" ? "ok" : s === "CANCELLED" ? "bad" : s === "NEW" ? "muted" : "warn") as keyof typeof TONES;

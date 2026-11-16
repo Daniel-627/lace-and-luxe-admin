@@ -9,8 +9,8 @@ const box = "w-full rounded-lg border border-champagne/60 bg-white/70 p-2.5 text
 export default function OrderActions({ order }: { order: AdminOrder }) {
   const router = useRouter();
   const [notes, setNotes] = useState(order.notes);
-  const [method, setMethod] = useState(order.method && order.method !== "PAYSTACK" ? order.method : "MPESA");
-  const [receipt, setReceipt] = useState("");
+  const [method, setMethod] = useState(order.method === "CASH" || order.method === "BANK" ? order.method : "MPESA");
+  const [receipt, setReceipt] = useState(order.paymentClaim ?? "");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -23,12 +23,12 @@ export default function OrderActions({ order }: { order: AdminOrder }) {
 
   function setFulfilment(value: string) {
     if (value === order.fulfilment) return;
-    if (value === "CANCELLED" && !confirm("Cancel this order? Stock is NOT put back automatically. Adjust it in Products if needed.")) return;
+    if (value === "CANCELLED" && !confirm("Cancel this order? The items go back into stock.")) return;
     void run({ fulfilment: value }, "Delivery status updated.");
   }
 
   function markPaid() {
-    if (!confirm("Mark this order as paid? This takes the items out of stock.")) return;
+    if (!confirm("Mark this order as paid?")) return;
     void run({ markPaid: true, method, ...(receipt.trim() ? { mpesaReceipt: receipt.trim() } : {}) }, "Marked as paid and stock updated.");
   }
 

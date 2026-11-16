@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { api } from "../../../lib/session";
 import { kes, localPhone, when } from "../../../lib/format";
-import { FULFILMENT, PAYMENT, label, type AdminOrder } from "../../../lib/orders";
+import { FULFILMENT, PAYMENT, label, payBadge, type AdminOrder } from "../../../lib/orders";
 import Badge, { fulfilTone, payTone } from "../../../components/Badge";
 
 const box = "rounded-lg border border-champagne/60 bg-white/70 p-2.5 text-sm";
@@ -41,7 +41,7 @@ export default async function Orders({ searchParams }: { searchParams: Promise<R
                 </div>
                 <p className="text-sm font-medium">{kes(o.total)}</p>
                 <div className="flex flex-col items-end gap-1">
-                  <Badge tone={payTone(o.status)}>{label(PAYMENT, o.status)}</Badge>
+                  <Badge tone={payBadge(o).tone}>{payBadge(o).text}</Badge>
                   <Badge tone={fulfilTone(o.fulfilment)}>{label(FULFILMENT, o.fulfilment)}</Badge>
                 </div>
               </Link>
