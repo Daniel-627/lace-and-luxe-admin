@@ -12,6 +12,11 @@ export default async function Dashboard() {
   return (
     <div className="space-y-8">
       <h1 className="font-serif text-4xl">Dashboard</h1>
+      {(s.messagesNeedingAction ?? 0) > 0 && (
+        <Link href="/messages" className="block rounded-2xl bg-champagne p-4 text-claret transition hover:opacity-90">
+          {s.messagesNeedingAction} {s.messagesNeedingAction === 1 ? "message needs" : "messages need"} sending by hand →
+        </Link>
+      )}
       {(s.pendingCodes ?? 0) > 0 && (
         <Link href="/codes" className="block rounded-2xl bg-champagne p-4 text-claret transition hover:opacity-90">
           {s.pendingCodes} sign-in {s.pendingCodes === 1 ? "code is" : "codes are"} waiting to be sent →
