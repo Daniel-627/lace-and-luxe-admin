@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 export default function Nav({ owner }: { owner: boolean }) {
   const path = usePathname();
   const items: [string, string][] = [
-    ["Dashboard", "/"], ["Products", "/products"], ["Orders", "/orders"], ["WhatsApp leads", "/leads"], ["Sign-in codes", "/codes"], ["Messages", "/messages"], ["Homepage", "/homepage"],
+    ["Dashboard", "/"], ["Products", "/products"], ["Orders", "/orders"], ["WhatsApp leads", "/leads"], ["Sign-in codes", "/codes"], ["Messages", "/messages"], ["Reviews", "/reviews"], ["Size guide", "/size-guide"], ["Homepage", "/homepage"],
     ...(owner ? ([["Staff", "/staff"], ["Delivery", "/delivery"], ["Payments", "/payments"], ["Discounts", "/discounts"], ["Messaging", "/messaging"], ["Settings", "/settings"]] as [string, string][]) : []),
     ["Account", "/account"],
   ];
