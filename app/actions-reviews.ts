@@ -8,5 +8,9 @@ async function call(path: string, method: string, body: unknown): Promise<Res> {
   catch (e) { if (e instanceof ApiError) return { error: e.message }; throw e; }
 }
 
-export const moderateReview = (id: number, patch: { status?: string; reply?: string | null }) => call(`/reviews/${id}`, "PATCH", patch);
-export const saveSizeGuide = (g: SizeGuide) => call("/size-guide", "PUT", g);
+export async function moderateReview(id: number, patch: { status?: string; reply?: string | null }): Promise<Res> {
+  return call(`/reviews/${id}`, "PATCH", patch);
+}
+export async function saveSizeGuide(g: SizeGuide): Promise<Res> {
+  return call("/size-guide", "PUT", g);
+}

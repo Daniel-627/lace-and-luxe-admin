@@ -10,7 +10,15 @@ async function call(path: string, method: string, body?: unknown): Promise<Res> 
   } catch (e) { if (e instanceof ApiError) return { error: e.message }; throw e; }
 }
 
-export const saveMessagingConfig = (c: MsgConfig) => call("/messaging/config", "PATCH", c);
-export const sendTestMessage = (channel: string, to: string) => call("/messaging/test", "POST", { channel, to });
-export const retryMessage = (id: number) => call(`/messages/${id}/retry`, "POST");
-export const markMessageSent = (id: number) => call(`/messages/${id}/sent`, "POST");
+export async function saveMessagingConfig(c: MsgConfig): Promise<Res> {
+  return call("/messaging/config", "PATCH", c);
+}
+export async function sendTestMessage(channel: string, to: string): Promise<Res> {
+  return call("/messaging/test", "POST", { channel, to });
+}
+export async function retryMessage(id: number): Promise<Res> {
+  return call(`/messages/${id}/retry`, "POST");
+}
+export async function markMessageSent(id: number): Promise<Res> {
+  return call(`/messages/${id}/sent`, "POST");
+}
