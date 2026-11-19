@@ -19,10 +19,14 @@ const I = (name: string, label: string, help?: string): Field => ({ name, label,
 
 export const BLOCKS: Record<string, BlockDef> = {
   heroBlock: {
-    label: "Hero", blurb: "The big opening section with a headline, buttons and a photo.", titleField: "headline", required: ["headline"],
+    label: "Hero", blurb: "The big opening section with a headline, buttons and a photo. Add more slides to make it a slider.", titleField: "headline", required: ["headline"],
     fields: [eyebrow, A("headline", "Headline", `${star} Press Enter for a new line.`), A("subheading", "Sub-heading"),
       T("primaryLabel", "Main button text"), L("primaryHref", "Main button link"), T("secondaryLabel", "Second button text"), L("secondaryHref", "Second button link"),
-      I("imageUrl", "Photo", "Shown inside an arch. Leave empty to show the placeholder.")],
+      I("imageUrl", "Photo", "Shown inside an arch. Leave empty to show the placeholder."),
+      { name: "slides", label: "More slides (optional)", kind: "list", max: 4, help: "Everything above is slide 1. Add up to 4 more and the hero becomes a slider. A slide without a headline is skipped.",
+        fields: [eyebrow, A("headline", "Headline", `${star} Press Enter for a new line.`), A("subheading", "Sub-heading"), T("primaryLabel", "Main button text"), L("primaryHref", "Main button link"), T("secondaryLabel", "Second button text"), L("secondaryHref", "Second button link"), I("imageUrl", "Photo")] },
+      { name: "seconds", label: "Seconds on each slide", kind: "number", min: 3, max: 15, help: "Only used when there is more than one slide." }],
+    defaults: { seconds: 6 },
   },
   tickerBlock: {
     label: "Scrolling ticker", blurb: "A strip of short lines that scrolls across.", required: ["items"],

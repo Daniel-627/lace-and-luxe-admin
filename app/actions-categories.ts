@@ -18,3 +18,6 @@ export async function renameCategory(id: number, name: string): Promise<Res> {
 export async function deleteCategory(id: number): Promise<Res> {
   return call(`/categories/${id}`, "DELETE");
 }
+export async function saveCategoryOrder(slugs: string[]): Promise<Res> {
+  return call("/categories/order", "PUT", { slugs });
+}

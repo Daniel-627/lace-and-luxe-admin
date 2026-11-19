@@ -27,6 +27,7 @@ export default function ProductForm({ product, categories: initialCats, canDelet
   const [categoryId, setCategoryId] = useState<number | null>(product?.categoryId ?? null);
   const [newCat, setNewCat] = useState("");
   const [active, setActive] = useState(product?.active ?? true);
+  const [soldOutBehavior, setSoldOutBehavior] = useState<"SHOW" | "HIDE">(product?.soldOutBehavior ?? "SHOW");
   const [payNow, setPayNow] = useState(product?.payNow ?? true);
   const [payOnDelivery, setPayOnDelivery] = useState(product?.payOnDelivery ?? false);
   const [rows, setRows] = useState<Row[]>((product?.variants ?? []).map((v) => ({ key: rk(), id: v.id, sku: v.sku, size: v.size, colour: v.colour, colourHex: v.colourHex ?? "", price: String(v.price), stock: String(v.stock) })));
@@ -80,7 +81,7 @@ export default function ProductForm({ product, categories: initialCats, canDelet
     const orphan = media.find((m) => m.colour && !have.has(m.colour.toLowerCase()));
     if (orphan) return setMsg({ ok: false, text: `A ${orphan.kind === "VIDEO" ? "video" : "photo"} is set for "${orphan.colour}", which has no sizes yet.` });
     setBusy(true);
-    const res = await saveProduct(product?.id ?? null, { name: name.trim(), ...(slug.trim() ? { slug: slug.trim() } : {}), description, media: media.map((m) => ({ kind: m.kind, url: m.url, colour: m.colour || null })), categoryId, active, payNow, payOnDelivery, variants });
+    const res = await saveProduct(product?.id ?? null, { name: name.trim(), ...(slug.trim() ? { slug: slug.trim() } : {}), description, media: media.map((m) => ({ kind: m.kind, url: m.url, colour: m.colour || null })), categoryId, active, soldOutBehavior, payNow, payOnDelivery, variants });
     setBusy(false);
     if (!res.ok) return setMsg({ ok: false, text: res.error ?? "Could not save" });
     setMsg({ ok: true, text: "Saved. The shop shows it within about a minute." });
@@ -89,7 +90,7 @@ export default function ProductForm({ product, categories: initialCats, canDelet
   }
 
   async function remove() {
-    if (!product || !confirm(`Delete "${product.name}" for good? Hiding it is usually better.`)) return;
+    if (!product || !confirm(`Delete "${product.name}" for good? This cannot be undone. Hiding it (untick "Show in the shop") is usually better.`)) return;
     const r = await deleteProduct(product.id);
     if (r?.error) setMsg({ ok: false, text: r.error });
   }
@@ -123,7 +124,7 @@ export default function ProductForm({ product, categories: initialCats, canDelet
 
   return (
     <div className="max-w-4xl space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/products" className="text-sm underline">← All products</Link>
         {canDelete && product && <button onClick={remove} className="text-sm underline">Delete product</button>}
       </div>
@@ -143,7 +144,13 @@ export default function ProductForm({ product, categories: initialCats, canDelet
               <button type="button" onClick={addCategory} className="shrink-0 rounded-full border border-claret px-4 text-sm">Add</button>
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /> Show in the shop <span className="text-claret/60">(untick to hide without deleting)</span></label>
+          <label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1" checked={active} onChange={(e) => setActive(e.target.checked)} /><span>Show in the shop <span className="text-claret/60">(untick to hide it completely, whatever the stock)</span></span></label>
+          <div className="space-y-2 rounded-xl border border-champagne/40 bg-white/60 p-3">
+            <p className="text-sm font-medium">When every size is sold out</p>
+            <label className="flex items-start gap-2 text-sm"><input type="radio" name="soldout" className="mt-1" checked={soldOutBehavior === "SHOW"} onChange={() => setSoldOutBehavior("SHOW")} /><span><b>Keep it in the shop</b> marked &ldquo;Sold out&rdquo;. Customers can see it but cannot order it.</span></label>
+            <label className="flex items-start gap-2 text-sm"><input type="radio" name="soldout" className="mt-1" checked={soldOutBehavior === "HIDE"} onChange={() => setSoldOutBehavior("HIDE")} /><span><b>Hide it automatically</b> until you add stock again. It comes back by itself as soon as any size has stock.</span></label>
+            <p className="text-xs text-claret/60">This follows your stock numbers, so there is nothing to switch on or off by hand.</p>
+          </div>
           <div className="space-y-1 rounded-xl border border-champagne/40 bg-white/60 p-3">
             <p className="text-sm font-medium">How customers can pay for this product</p>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={payNow} onChange={(e) => setPayNow(e.target.checked)} /> Pay now (M-Pesa)</label>
@@ -159,7 +166,7 @@ export default function ProductForm({ product, categories: initialCats, canDelet
         <div className="space-y-3 rounded-2xl border border-dashed border-champagne p-4">
           <p className="text-sm font-medium">Quick add</p>
           <p className="text-xs text-claret/60">Type colours and sizes separated by commas. One row is made for each combination you don&apos;t have yet.</p>
-          <div className="grid gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <input className={box} placeholder="Colours: Black, Nude" value={q.colours} onChange={(e) => setQ({ ...q, colours: e.target.value })} />
             <input className={box} placeholder="Sizes: S, M, L" value={q.sizes} onChange={(e) => setQ({ ...q, sizes: e.target.value })} />
             <input className={box} inputMode="numeric" placeholder="Price (KES)" value={q.price} onChange={(e) => setQ({ ...q, price: e.target.value })} />

@@ -22,7 +22,7 @@ export default async function Customers({ searchParams }: { searchParams: Promis
         <p className="mt-2 text-sm text-claret/70">Everyone who has placed an order, grouped by phone number. Guests who checked out without an account are included. Spent counts paid orders that were not cancelled.</p>
       </div>
       <form className="flex flex-wrap gap-2">
-        <input name="q" defaultValue={sp.q ?? ""} placeholder="Search name or phone" className={`${box} min-w-64 flex-1`} />
+        <input name="q" defaultValue={sp.q ?? ""} placeholder="Search name or phone" className={`${box} w-full flex-1 sm:w-auto sm:min-w-64`} />
         <button className="rounded-full bg-claret px-6 text-sm text-ivory">Search</button>
       </form>
 

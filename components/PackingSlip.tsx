@@ -28,7 +28,7 @@ export default function PackingSlip({ o }: { o: AdminOrder }) {
         {o.deliveryServiceName && <p className="mt-1 text-xs">Delivery: {o.deliveryServiceName}</p>}
       </section>
 
-      <table className="w-full">
+      <div className="overflow-x-auto print:overflow-visible"><table className="w-full">
         <thead><tr className="border-y border-black/30 text-left text-xs uppercase tracking-[0.15em]"><th className="w-8 py-2 font-normal">Packed</th><th className="py-2 font-normal">Item</th><th className="py-2 font-normal">Size</th><th className="py-2 font-normal">Colour</th><th className="py-2 text-right font-normal">Qty</th></tr></thead>
         <tbody>
           {o.items.map((i) => (
@@ -39,7 +39,7 @@ export default function PackingSlip({ o }: { o: AdminOrder }) {
           ))}
         </tbody>
         <tfoot><tr><td colSpan={4} className="pt-2 text-right text-xs uppercase tracking-[0.15em]">Total items</td><td className="pt-2 text-right font-medium">{units}</td></tr></tfoot>
-      </table>
+      </table></div>
 
       {collect ? (
         <p className="border-2 border-black p-3 text-center text-lg font-medium">COLLECT {kes(o.total)} ON DELIVERY</p>

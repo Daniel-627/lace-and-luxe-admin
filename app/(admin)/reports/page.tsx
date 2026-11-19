@@ -16,10 +16,10 @@ function Table({ title, head, rows }: { title: string; head: [string, string, st
     <section className="rounded-2xl border border-champagne/40 bg-white/60 p-5">
       <h2 className="mb-3 font-serif text-2xl">{title}</h2>
       {rows.length === 0 ? <p className="text-sm text-claret/60">Nothing in this period.</p> : (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto"><table className="w-full text-sm">
           <thead><tr className="text-left text-xs uppercase tracking-[0.15em] text-claret/60"><th className="pb-2 font-normal">{head[0]}</th><th className="pb-2 text-right font-normal">{head[1]}</th><th className="pb-2 text-right font-normal">{head[2]}</th></tr></thead>
           <tbody className="divide-y divide-champagne/30">{rows.map(([a, b, c]) => <tr key={a}><td className="py-2 pr-3">{a}</td><td className="py-2 text-right text-claret/70">{b}</td><td className="py-2 text-right font-medium">{c}</td></tr>)}</tbody>
-        </table>
+        </table></div>
       )}
     </section>
   );
