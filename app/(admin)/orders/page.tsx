@@ -16,7 +16,7 @@ export default async function Orders({ searchParams }: { searchParams: Promise<R
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-4xl">Orders</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="font-serif text-4xl">Orders</h1><Link href="/orders/slips" className="rounded-full border border-claret px-4 py-1.5 text-sm">Print packing slips for new orders</Link></div>
       <form className="flex flex-wrap gap-2">
         <input name="q" defaultValue={sp.q ?? ""} placeholder="Search name, phone or reference" className={`${box} min-w-64 flex-1`} />
         <select name="status" defaultValue={sp.status ?? ""} className={box}><option value="">Any payment</option>{PAYMENT.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>

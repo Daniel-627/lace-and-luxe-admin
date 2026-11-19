@@ -27,7 +27,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <h1 className="font-serif text-4xl">{o.reference}</h1>
           <p className="text-sm text-claret/60">{when(o.createdAt)}</p>
         </div>
-        <div className="flex gap-2"><Badge tone={payBadge(o).tone}>{payBadge(o).text}</Badge><Badge tone={fulfilTone(o.fulfilment)}>{label(FULFILMENT, o.fulfilment)}</Badge></div>
+        <div className="flex flex-wrap items-center gap-2"><Link href={`/orders/${o.id}/slip`} className="mr-2 rounded-full border border-claret px-4 py-1.5 text-sm">Packing slip</Link><Badge tone={payBadge(o).tone}>{payBadge(o).text}</Badge><Badge tone={fulfilTone(o.fulfilment)}>{label(FULFILMENT, o.fulfilment)}</Badge></div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

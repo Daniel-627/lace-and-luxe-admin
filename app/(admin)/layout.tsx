@@ -9,8 +9,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const me = await api<Me>("/me");
   if (me.mustChangePassword) redirect("/change-password");
   return (
-    <div className="min-h-screen md:flex">
-      <aside className="bg-claret p-4 text-ivory md:min-h-screen md:w-64 md:shrink-0 md:p-6">
+    <div className="min-h-screen md:flex print:block">
+      <aside className="bg-claret print:hidden p-4 text-ivory md:min-h-screen md:w-64 md:shrink-0 md:p-6">
         <div className="mb-4 flex items-center gap-3 md:mb-8">
           <img src="/brand/monogram-ivory.svg" alt="" className="h-9 w-auto" />
           <div>
@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <button className="text-sm text-champagne underline">Sign out</button>
         </form>
       </aside>
-      <main className="min-w-0 flex-1 p-6 md:p-10">{children}</main>
+      <main className="min-w-0 flex-1 p-6 md:p-10 print:p-0">{children}</main>
     </div>
   );
 }
