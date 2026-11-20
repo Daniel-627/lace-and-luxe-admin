@@ -100,9 +100,11 @@ export default function MessagingSettings({ initial, channels, categories }: { i
                 </div>
                 {isOn(c.key, "whatsapp") && (
                   <div>
-                    <label className="mb-1 block text-xs font-medium">WhatsApp template name (optional)</label>
-                    <input className={box} placeholder="Leave empty to send plain text" value={cfg.templates[c.key] ?? ""} onChange={(e) => setCfg({ ...cfg, templates: { ...cfg.templates, [c.key]: e.target.value } })} />
-                    <p className="mt-1 text-xs text-claret/60">WhatsApp only lets us start a chat with an approved template. Its variables must be, in order: {c.params.map((p, i) => `{{${i + 1}}} ${p}`).join(", ")}.</p>
+                    <label className="mb-1 block text-xs font-medium">WhatsApp template name{c.key === "CODE" ? " (required)" : " (optional)"}</label>
+                    <input className={box} placeholder={c.key === "CODE" ? "e.g. signin_code" : "Leave empty to send plain text"} value={cfg.templates[c.key] ?? ""} onChange={(e) => setCfg({ ...cfg, templates: { ...cfg.templates, [c.key]: e.target.value } })} />
+                    <p className="mt-1 text-xs text-claret/60">WhatsApp only lets us start a chat with an approved template. {c.key === "CODE"
+                      ? <>For sign-in codes, create the template in Meta with the category <b>Authentication</b> and a <b>Copy code</b> button, then type its exact name here. Meta fills in the code itself, so there are no other variables to match.</>
+                      : <>Its variables must be, in order: {c.params.map((p, i) => `{{${i + 1}}} ${p}`).join(", ")}.</>}</p>
                   </div>
                 )}
               </div>
