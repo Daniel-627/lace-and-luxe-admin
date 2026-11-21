@@ -3,14 +3,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface Item { label: string; href: string; owner?: boolean }
+interface Item { label: string; href: string; owner?: boolean; needsAccounts?: boolean }
 interface Group { title: string; owner?: boolean; items: Item[] }
+
+// Customer sign-in is switched off in the shop for now, so its admin screen is hidden too. See the shop's lib/features.ts.
+const ACCOUNTS_ON = process.env.NEXT_PUBLIC_FEATURE_ACCOUNTS === "on";
 
 const TOP: Item = { label: "Dashboard", href: "/" };
 const GROUPS: Group[] = [
   { title: "Sales", items: [{ label: "Orders", href: "/orders" }, { label: "Customers", href: "/customers" }, { label: "WhatsApp leads", href: "/leads" }, { label: "Reviews", href: "/reviews" }, { label: "Reports", href: "/reports", owner: true }] },
   { title: "Shop", items: [{ label: "Products", href: "/products" }, { label: "Categories", href: "/categories" }, { label: "Size guide", href: "/size-guide" }, { label: "Homepage", href: "/homepage" }] },
-  { title: "Communication", items: [{ label: "Messages", href: "/messages" }, { label: "Sign-in codes", href: "/codes" }] },
+  { title: "Communication", items: [{ label: "Messages", href: "/messages" }, { label: "Sign-in codes", href: "/codes", needsAccounts: true }] },
   { title: "Store setup", owner: true, items: [{ label: "Delivery", href: "/delivery" }, { label: "Payments", href: "/payments" }, { label: "Discounts", href: "/discounts" }, { label: "Messaging", href: "/messaging" }] },
   { title: "Team & account", items: [{ label: "Staff", href: "/staff", owner: true }, { label: "Settings", href: "/settings", owner: true }, { label: "Account", href: "/account" }] },
 ];
@@ -20,7 +23,7 @@ const groupOf = (path: string) => GROUPS.find((g) => g.items.some((i) => isActiv
 
 export default function Nav({ owner }: { owner: boolean }) {
   const path = usePathname();
-  const groups = GROUPS.filter((g) => !g.owner || owner).map((g) => ({ ...g, items: g.items.filter((i) => !i.owner || owner) })).filter((g) => g.items.length > 0);
+  const groups = GROUPS.filter((g) => !g.owner || owner).map((g) => ({ ...g, items: g.items.filter((i) => (!i.owner || owner) && (!i.needsAccounts || ACCOUNTS_ON)) })).filter((g) => g.items.length > 0);
   const [open, setOpen] = useState<Set<string>>(() => new Set([groupOf(path)].filter((x): x is string => !!x)));
 
   // Keep the group you are in open as you move around.
